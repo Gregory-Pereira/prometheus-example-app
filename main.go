@@ -20,6 +20,15 @@ var (
 		},
 	})
 
+	appTestingMetric string
+	testingMetric = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "testingMetric",
+		Help: "testing to see if this will appear in openshift",
+		ConstLabels: map[string]string{
+			"testingMetric": appTestingMetric,
+		},
+	})
+
 	httpRequestsTotal = prometheus.NewCounterVec(prometheus.CounterOpts{
 		Name: "http_requests_total",
 		Help: "Count of all HTTP requests",
@@ -33,6 +42,7 @@ var (
 
 func main() {
 	version.Set(1)
+	testingMetric.Set(1)
 	bind := ""
 	flagset := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	flagset.StringVar(&bind, "bind", ":8080", "The socket to bind to.")
@@ -42,6 +52,7 @@ func main() {
 	r.MustRegister(httpRequestsTotal)
 	r.MustRegister(httpRequestDuration)
 	r.MustRegister(version)
+	r.MustRegister(testingMetric)
 
 	foundHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
